@@ -1,4 +1,10 @@
+# 실습 시작 전 필수 설치 항목
+# pip3 install keras tensorflow==1.15.0rc1 
+# pip mtcnn Pillow numpy opencv-python matplotlib sklearn
+
+
 # example of loading the keras facenet model
+
 from keras.models import load_model
 # load the model
 model = load_model('facenet_keras.h5')
@@ -15,13 +21,14 @@ from PIL import Image
 from numpy import asarray
 from matplotlib import pyplot
 from mtcnn.mtcnn import MTCNN
+# import tensorflow.warnings
 
 # 주어진 사진에서 하나의 얼굴 추출
 def extract_face(filename, required_size=(160, 160)):
 	# 파일에서 이미지 불러오기
 	image = Image.open(filename)
 	# RGB로 변환, 필요시
-	image = image.convert('CMYK')
+	image = image.convert('RGB')
 	# 배열로 변환
 	pixels = asarray(image)
 	# 감지기 생성, 기본 가중치 이용
@@ -29,7 +36,8 @@ def extract_face(filename, required_size=(160, 160)):
 	# 이미지에서 얼굴 감지
 	results = detector.detect_faces(pixels)
 	# 첫 번째 얼굴에서 경계 상자 추출
-	x1, y1, width, height = results[0]['boxes']
+    # print(results)
+	x1, y1, width, height = results[0]['box']
 	# 버그 수정
 	x1, y1 = abs(x1), abs(y1)
 	x2, y2 = x1 + width, y1 + height
@@ -41,12 +49,13 @@ def extract_face(filename, required_size=(160, 160)):
 	face_array = asarray(image)
 	return face_array
 
-from os import listdir
-from PIL import Image
-from numpy import asarray
-from matplotlib import pyplot
-from mtcnn.mtcnn import MTCNN
-# 폴더를 플롯으로 구체화하기
+
+# from os import listdir
+# from PIL import Image
+# from numpy import asarray
+# from matplotlib import pyplot
+# from mtcnn.mtcnn import MTCNN
+# # 폴더를 플롯으로 구체화하기
 folder = '5-celebrity-faces-dataset/train/ben_afflek/'
 i = 1
 # 파일 열거
