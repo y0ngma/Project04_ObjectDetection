@@ -65,6 +65,8 @@
     - 닮은 사람 찾기(9.5%)  
     - 금융 거래(5.7%) 등의 서비스 사용경험은 상대적으로 미약한 실정
     ![ex_screenshot](./img/korea_FR.png)
+    ![ex_screenshot](https://github.com/y0ngma/pj04_ObjectDetection/blob/master/ref/img/korea_FR.png)
+
 
 - 안면인식 서비스 우려사항(중복 응답) / 안면인식 발전을 위한 정책 우선 순위 (중복 응답)
     - ![ex_screenshot](./img/deterance.png)
