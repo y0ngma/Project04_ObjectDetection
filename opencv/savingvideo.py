@@ -14,6 +14,7 @@ while True:
     
     frame = cv2.resize( frame, size ) # 이미지를 축소
     writer.write(frame) # 이미지 출력
+    print(frame)
     cv2.imshow( 'frame', frame ) # 화면출력
 
     if cv2.waitKey(1) == 13: break
