@@ -1,3 +1,4 @@
+# cd repository/project04_objectdetection/opencv
 import numpy as np
 import cv2
 
