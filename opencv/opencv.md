@@ -73,3 +73,112 @@
     
     # 성공적으로 설치하면 이 라이브러리를 사용해 실시간 비디오를 스트리밍할 수 있다. 이제 기준모델을 구축하기 시작해보자.
     ```
+
+
+# 전처리부터 분류까지
+## Labeled Faces in the Wild
+1. LFW 경로 맞추기
+    - 다음과 같은 경로에 모델압축을 푼다
+        ```py
+        models
+        L facenet
+            L 20180402-114759.zip
+            L 20180402-114759
+                L 20180402-114759.pb
+                L model-20180402-114759.ckpt-275.data-00000-of-00001
+                L model-20180402-114759.ckpt-275.index
+                L model-20180402-114759.meta
+
+        mkdir -p /root/models/facenet
+        # 도커컨테이너밖 터미널에서 윈도우로컬의 파일을
+        # 도커컨테이너안 우분투 목표경로에 압축파일 옮겨놓기
+        docker cp C:/Users/admin/Downloads/20180402-114759.zip \
+                    ubuntu1:/root/models/facenet
+        # 목표경로에 이동하여 압축풀기
+        cd /root/models/facenet
+        apt-get update
+        apt-get install zip unzi
+        unzip 20180402-114759.zip
+        ```
+
+1. LFW 전처리 하기
+    - 로우데이터를 전처리하여 lfw_mtcnnpy_160 폴더에 넣기
+        ```py
+        python src/align/align_dataset_mtcnn.py \ 
+        /root/datasets/lfw/raw \
+        ~/datasets/lfw/lfw_mtcnnpy_160 \
+        --image_size 160 \
+        --margin 32 \
+        --random_order \
+        --gpu_memory_fraction 0.25 \
+        ```
+
+1. LFW 분류기 생성
+    - 전처리 된걸로 분류기 피클생성 
+        ```py
+        # 경로이동
+        cd /root/repository/facenet0
+        # 실행
+        python src/classifier.py TRAIN \
+        ~/datasets/lfw/lfw_mtcnnpy_160 \
+        ~/models/facenet/20180402-114759/model-20180402-114759.pb \
+        ~/models/facenet/my_classifier.pkl \
+        --batch_size 1000 --min_nrof_images_per_class 40 \ 
+        --nrof_train_images_per_class 35 --use_split_dataset
+        ```
+
+## 개인데이터로
+1. my_datasets 경로 맞히기
+    - 다음과 같은 경로를 생성한다
+        ```
+        datasets
+            L my_datasets
+                L star
+                    L raw
+                    L star_mtcnnpy_160
+
+        mkdir -p /root/datasets/my_datasets/star/raw \
+                 /root/datasets/my_datasets/star/star_mtcnn_160
+
+        docker cp C:/Users/admin/Downloads/img_test.zip \
+                    ubuntu1:/root/datasets/my_datasets/star/raw
+        ```
+        
+1. my_datasets 데이터 전처리
+    - 로우데이터를 전처리하여 star_mtcnnpy_160 폴더에 넣기
+        ```py
+        python src/align/align_dataset_mtcnn.py \ 
+        /root/datasets/my_datasets/star/raw \
+        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
+        --image_size 160 \
+        --margin 32 \
+        --random_order \
+        --gpu_memory_fraction 0.25 \
+        ```
+
+1. my_datasetss 분류기 생성
+    - 전처리 된걸로 분류기 피클생성 
+        ```py
+        python src/classifier.py TRAIN \
+        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
+        ~/models/facenet/20180402-114759/model-20180402-114759.pb \
+        ~/models/facenet/my_classifier20p.pkl \
+        --batch_size 1000 --min_nrof_images_per_class 40 \ 
+        --nrof_train_images_per_class 35 --use_split_dataset
+        ```
+
+1. my_datasets 분류
+    - 분류
+        ```py
+        # 경로이동
+        cd /root/repository/facenet0
+
+        python src/classifier.py CLASSIFY \
+        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
+        ~/models/facenet/20180402-114759/20180402-114759.pb \
+        ~/models/facenet/my_classifier20p.pkl --batch_size 1000
+
+        # 분류기 넣는 폴더에 미리 생성된 분류기 붙여넣기법은 다음과 같다
+        docker cp C:/Users/admin/Downloads/my_classifier20p.pkl \
+                    ubuntu1:/root/models/facenet
+        ```
