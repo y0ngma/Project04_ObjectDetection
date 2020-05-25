@@ -196,3 +196,19 @@
         docker cp C:/Users/admin/Downloads/my_classifier20p.pkl \
                     ubuntu1:/root/models/facenet
         ```
+
+## 정리
+- 정확도 acc = float(tp+tn) / dist.size
+    ```py
+    def calculate_accuracy(threshold, dist, actual_issame):
+        predict_issame = np.less(dist, threshold)
+        tp = np.sum(np.logical_and(predict_issame, actual_issame))
+        fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
+        tn = np.sum(np.logical_and(np.logical_not(predict_issame), np.logical_not(actual_issame)))
+        fn = np.sum(np.logical_and(np.logical_not(predict_issame), actual_issame))
+    
+        tpr = 0 if (tp+fn==0) else float(tp) / float(tp+fn)
+        fpr = 0 if (fp+tn==0) else float(fp) / float(fp+tn)
+        acc = float(tp+tn)/dist.size
+        return tpr, fpr, acc
+    ```
