@@ -143,38 +143,52 @@
         docker cp C:/Users/admin/Downloads/img_test.zip \
                     ubuntu1:/root/datasets/my_datasets/star/raw
         ```
-        
-1. my_datasets 데이터 전처리
-    - 로우데이터를 전처리하여 star_mtcnnpy_160 폴더에 넣기
+
+1. 모델훈련용 데이터 전처리
+    - ~raw/Train 전처리하여 star_mtcnnpy_160/Train 폴더에 넣기
         ```py
-        python src/align/align_dataset_mtcnn.py \ 
-        /root/datasets/my_datasets/star/raw \
-        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
+        # 경로이동
+        cd /root/repository/facenet0
+        conda activate facenet0
+
+        # 인풋~/Train에 담긴 이름별 폴더의 데이터셋을 전처리해서
+        # 아웃풋~/Train에 이름별로 담기
+        python src/align/align_dataset_mtcnn.py /root/datasets/my_datasets/star/raw/Train ~/datasets/my_datasets/star/star_mtcnnpy_160/Train \
         --image_size 160 \
         --margin 32 \
         --random_order \
-        --gpu_memory_fraction 0.25 \
+        --gpu_memory_fraction 0.25
         ```
-
-1. my_datasetss 분류기 생성
+1. 분류용 검증데이터 전처리하기
+    - ~raw/Test 전처리하여 star_mtcnnpy_160/Test 폴더에 넣기
+        ```py
+        python src/align/align_dataset_mtcnn.py /root/datasets/my_datasets/star/raw/Test ~/datasets/my_datasets/star/star_mtcnnpy_160/Test \
+        --image_size 160 \
+        --margin 32 \
+        --random_order \
+        --gpu_memory_fraction 0.25
+        ```
+1. 전처리된 훈련데이터로 분류기 생성하기
     - 전처리 된걸로 분류기 피클생성 
         ```py
         python src/classifier.py TRAIN \
-        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
-        ~/models/facenet/20180402-114759/model-20180402-114759.pb \
-        ~/models/facenet/my_classifier20p.pkl \
-        --batch_size 1000 --min_nrof_images_per_class 40 \ 
+        ~/datasets/my_datasets/star/star_mtcnnpy_160/Train \
+        ~/models/facenet/20180402-114759/20180402-114759.pb \
+        ~/models/facenet/my_classifier20p.pkl
+        --batch_size 1000 
+        
+        --min_nrof_images_per_class 40 \ 
         --nrof_train_images_per_class 35 --use_split_dataset
         ```
 
-1. my_datasets 분류
+1. 전처리된 검증데이터를 분류하기
     - 분류
         ```py
         # 경로이동
         cd /root/repository/facenet0
 
         python src/classifier.py CLASSIFY \
-        ~/datasets/my_datasets/star/star_mtcnnpy_160 \
+        ~/datasets/my_datasets/star/star_mtcnnpy_160/Test \
         ~/models/facenet/20180402-114759/20180402-114759.pb \
         ~/models/facenet/my_classifier20p.pkl --batch_size 1000
 
