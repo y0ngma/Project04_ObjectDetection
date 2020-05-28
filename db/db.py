@@ -33,7 +33,6 @@ rows = cur.fetchall()
 for r in rows:
     print( f"id {r[0]} name {r[1]}" )
 
-
 # close the cursor
 cur.close()
 
