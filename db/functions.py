@@ -37,24 +37,26 @@ def connect(): # 접속되면 버전확인 하는 함수
             print('Database connection closed.')
 
 
-
+# 시간형식 설정 https://www.postgresqltutorial.com/postgresql-time/
+# 자동 타임스탬프 https://x-team.com/blog/automatic-timestamps-with-postgresql/
 def create_tables():
     """ create tables in the PostgreSQL database"""
     commands = (
         """
         CREATE TABLE customers (
-            customer_id SERIAL PRIMARY KEY,
-            customer_name VARCHAR(255) NULL,
-            customer_age VARCHAR(255) NOT NULL,
-            customer_gender VARCHAR(255) NOT NULL,
-            customer_phone VARCHAR(255) NULL
+                customer_id SERIAL PRIMARY KEY,
+                customer_name VARCHAR(255) NULL,
+                customer_age VARCHAR(255) NOT NULL,
+                customer_gender VARCHAR(255) NOT NULL,
+                customer_phone VARCHAR(255) NULL
         )
         """,
         """ CREATE TABLE items (
                 item_id SERIAL PRIMARY KEY,
+                item_name VARCHAR(255) NOT NULL,
                 item_producer VARCHAR(255) NULL,
                 item_group VARCHAR(255) NULL,
-                item_price VARCHAR(255) NOT NULL
+                item_price INTEGER NOT NULL
                 )
         """,
         """
@@ -63,8 +65,8 @@ def create_tables():
                 file_extension VARCHAR(5) NOT NULL,
                 pic_data BYTEA NOT NULL,
                 FOREIGN KEY (customer_id)
-                REFERENCES customers (customer_id)
-                ON UPDATE CASCADE ON DELETE CASCADE
+                    REFERENCES customers (customer_id)
+                    ON UPDATE CASCADE ON DELETE CASCADE
         )
         """,
         """
@@ -77,7 +79,9 @@ def create_tables():
                     ON UPDATE CASCADE ON DELETE CASCADE,
                 FOREIGN KEY (item_id)
                     REFERENCES items (item_id)
-                    ON UPDATE CASCADE ON DELETE CASCADE
+                    ON UPDATE CASCADE ON DELETE CASCADE,
+                purchased_at TIMESTAMP DEFAULT DATE_TRUNC('second', CURRENT_TIMESTAMP),
+                purchased_at TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
         )
         """)
     conn = None
@@ -227,9 +231,12 @@ def add_item(item_name, item_producer, item_group, item_price, customer_list):
         # get the item id
         item_id = cur.fetchone()[0]
         # assign items provided by customers
-        for customer_id in customer_list:
+        if len(customer_list) > 1:
+            for customer_id in customer_list:
+                cur.execute(assign_customer, (customer_id, item_id))
+        if len(customer_list) == 1:
             cur.execute(assign_customer, (customer_id, item_id))
-
+        
         # commit changes
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -269,6 +276,7 @@ def get_items(customer_id):
 
 
 # https://www.postgresqltutorial.com/postgresql-python/blob/
+# 로컬에 잇는 이미지를 db에 업로드하는것
 def write_blob(customer_id, path_to_file, file_extension):
     """ insert a BLOB into a table """
     conn = None
@@ -327,4 +335,5 @@ def read_blob(customer_id, path_to_dir):
 
 
 if __name__ == '__main__':
-   connect() # 버전확인
+    connect() # 버전확인
+    

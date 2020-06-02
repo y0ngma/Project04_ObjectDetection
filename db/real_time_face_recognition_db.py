@@ -1,7 +1,6 @@
 # 2020-05-27 Unknown과 Accuracy 영상에 출력되도록 수정
 # 2020-06-01 DB에 적재중
-import age_gender_estimate
-import random
+import align.detect_face
 import argparse
 import sys
 import time
@@ -9,8 +8,11 @@ import cv2
 import face # Original
 # import contributed.face # Modified
 import psycopg2
+import random
+import estimate, UI
 from functions import *
 import os
+
 
 base_path = '/'.join((os.getcwd()).split('/')[:4])+'/' #/home/team/facenet_master/ 
 upload_path = 'project04_objectdetection/data/'
@@ -89,19 +91,46 @@ def main(args):
         frame_count += 1
         # frame 출력
         cv2.imshow('Video', frame)
-        tmp = random.randint(1, 10)
-        if tmp == 5:
-            age, gender = age_gender_estimate.age_gender_estimate()
-            functions.insert_customer(age, gender)
-            # sql = " INSERT {}, {} TO TABLE "
-            # cur.excute(sql)
-            print("나이, 성별 = ", age, gender)
-
-            return age, gender
-
-        # 키 입력하면 break한다
+        ## 키 입력하거나 구매를 완료시 break한다
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+    #######################################################
+    ###### 조작패널 : 결제대용으로 키보드나 웹버튼 이용 ######
+    #######################################################
+        """ to do list :
+        1. DB에 실시간 예측값 customers 테이블에 적재( 옵션 : 임베딩얼굴값을 키값으로 )
+        2. items의 구매내역을 적재 및 구매한 회원과 연결 ( 1 customer vs 다수 item 연결 )
+        3. 두 작업을 버튼하나로 통합 및 items 테이블에 타임스탬프 생성
+            3.1 시간형식 설정 https://www.postgresqltutorial.com/postgresql-time/
+            3.2 타임스탬프 자동생성 https://x-team.com/blog/automatic-timestamps-with-postgresql/
+        4. main()실행시 세션연결 autocommit으로 자동 DB커밋 구현 및 close(구매완료시) 
+        5. DB에 회원정보 수정 update_customer()
+            5.1 회원가입(약관동의 버튼)누르면 사진 캡쳐 및 업로드
+            5.2 저장된 예측값 대신 직접입력 할 수 있는 칸이나 팝업창구현
+            5.3 그 입력값으로 DB에 insert/update_customer()
+            5.4 단, 이름이나 폰번호로 회원을 구분하는게 아니라 얼굴피쳐맵으로
+        6. 상기 실시간 DB연동 구축되면 더미데이터 대량적재 copy()이용
+            https://hakibenita.com/fast-load-data-python-postgresql#copy
+        7. 분석
+        """
+        ## 회원입력
+        if cv2.waitKey(1) & 0xFF == ord('i'):
+            customer_age, customer_gender = estimate.age_gender()
+            insert_customer(customer_age, customer_gender)
+        ## 결제 : customer_id와 item_id를 연결
+        if cv2.waitKey(1) & 0xFF == ord('a'):
+            item_name, item_producer, item_group, item_price = UI.purchase()
+            add_item(item_name, item_producer, item_group, item_price, customer_list)
+        ## DB예측된 값을 사용자가 수정
+        # 웹상에서 팝업창 띄우거나 예측된값 옆에 수정버튼 구비
+        if cv2.waitKey(1) & 0xFF == ord('u'):
+            customer_age, customer_gender, customer_id = UI.register(customer_id)
+            update_customer(customer_id, customer_age, customer_gender)
+        ## 이미지 캡쳐하고 (로컬저장후) DB적재
+        # 이미지 캡쳐하는것 추가필요
+        if cv2.waitKey(1) & 0xFF == ord('d'):
+            write_blob(1, input_path+'hong.jpeg', 'jpeg')
+            write_blob(2, input_path+'jennie_makeup.jpg', 'jpg')
 
     # When everything is done, release the capture
     video_capture.release()
@@ -119,34 +148,39 @@ def parse_arguments(argv):
 if __name__ == '__main__':
     # main(parse_arguments(sys.argv[1:]))
 
-    # print(face.accuracy)
-    # print("+"*80, main.age, main.gender)
-
 # 열결된 db 정보
     connect()
+# DB
+    create_tables()
 
-# # 최초 디비생성
-    # create_tables()
+## 회원입력
+    customer_age, customer_gender = estimate.age_gender()
+    for i in range(10):
+        insert_customer(customer_age+int(i), customer_gender)
+## customer_id와 item_id를 연결
+    item_name, item_producer, item_group, item_price = UI.purchase()
+    customer_list = (1, 2)
+    add_item(item_name, item_producer, item_group, item_price, customer_list)
+## DB예측된 값을 사용자가 수정
+# 웹상에서 팝업창 띄우거나 예측된값 옆에 수정버튼 구비
+    # customer_age, customer_gender, customer_id = UI.register()
+    # update_customer(customer_id, customer_age, customer_gender)
+## 이미지 캡쳐하고 (로컬저장후) DB적재
+# 이미지 캡쳐하는것 추가필요
+    # write_blob(1, input_path+'hong.jpeg', 'jpeg')
+    # write_blob(2, input_path+'jennie_makeup.jpg', 'jpg')
 
-# # insert one/multiple customer
-#     insert_customer(33, 1) # 33세, 남자
-#     insert_customer_list([ (29,1),
-#                             (35,0) ])
 
-# # customer가 제공하는 item를 연결 추가
-#     add_item('SIM Tray',, (1, 2))
+# # 나이 성별 예측목록 통째 입력
+#     insert_customer_list([ (29,1), (35,0) ])
 
-
+# https://hakibenita.com/django-group-by-sql
 # # customer_id 가 1인 사람의 item를 가져오기
 #     get_items(1)
 
 # # id인덱스 리셋시 참고할 시퀸스명
 #     sequences()
 
-# # 로컬 이미지 DB적재
-    # write_blob(1, input_path+'hong.jpeg', 'jpeg')
-#     write_blob(2, input_path+'jennie_makeup.jpg', 'jpg')
-
 # # 적재된 이미지 불러와 로컬에 저장 
-    # read_blob( 1, output_path )
-    
+#     read_blob( 1, output_path )
+            
