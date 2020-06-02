@@ -19,6 +19,7 @@ command = (
         vendor_name VARCHAR(255) NOT NULL
     )
     ''')
+    
 # 가져오기
 selects = '''
 SELECT vendor_id, vendor_name FROM vendors
