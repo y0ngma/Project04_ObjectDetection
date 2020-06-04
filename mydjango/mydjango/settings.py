@@ -26,7 +26,7 @@ SECRET_KEY = '-!b(8h)c2usyr*jk53g0xx%jgiq4=2&yix-b2672rpv!z2d*8a'
 DEBUG = True
 
 # ALLOWED_HOSTS = [] # 기본
-ALLOWED_HOSTS = ['192.168.0.100:8887', '.pythonanywhere.com'] # 튜토리얼
+ALLOWED_HOSTS = ['*'] # 튜토리얼
 
 # Application definition
 
