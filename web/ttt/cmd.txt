@@ -1,0 +1,55 @@
+export PYTHONPATH=./src:./src/models:./src/align
+conda create -n facenet python=3.5
+conda activate facenet
+pip install --upgrade pip
+pip install zipp==1.2.0
+pip install -r requirements.txt
+export PYTHONPATH=./src:./src/models:./src/align
+pip install numpy==1.16.2
+pip install scipy==1.2.1
+---------------------------------------------------------------
+<gpu>
+conda create -n py36 python=3.6
+conda activate py36
+conda install -c anaconda tensorflow-gpu==1.14
+pip install --upgrade pip
+pip install zipp==1.2.0
+pip install -r requirements.txt
+export PYTHONPATH=./src:./src/models:./src/align
+pip install numpy==1.16.2
+pip install scipy==1.2.1
+---------------------------------------------------------------
+multiprocessing -> python run.py
+---------------------------------------------------------------
+mtcnn<?„ì²˜ë¦?
+facenet/img_test/Train , Test ?ˆì— ?¼êµ´ ?¬ì§„ ?£ì–´?”ì•¼??
+<Train>
+---------------------------------------------------------------
+python src/align/align_dataset_mtcnn.py \
+~/facenet/img_test/Train \
+~/facenet/dataset/Train \
+--image_size 160 \
+--margin 32 \
+--random_order \
+--gpu_memory_fraction 0.25
+<Test>
+python src/align/align_dataset_mtcnn.py \
+~/facenet/img_test/Test \
+~/facenet/dataset/Test \
+--image_size 160 \
+--margin 32 \
+--random_order \
+--gpu_memory_fraction 0.25
+---------------------------------------------------------------
+<TRAIN>
+python src/classifier.py TRAIN ~/facenet/dataset/Train/ ~/facenet/models/20180402-114759/20180402-114759.pb  ~/facenet/my_models/my_classifier.pkl --batch_size 1000
+<Test>
+python src/classifier.py CLASSIFY ~/facenet/dataset/Test/ ~/facenet/models/20180402-114759/20180402-114759.pb ~/facenet/my_models/my_classifier.pkl --batch_size 1000
+
+
+---------------------------------------------------------------
+export_embeddings
+
+python contributed/export_embeddings.py ~/facenet/models/20180402-114759/20180402-114759.pb ~/tarball/MTCNN_AFAD-Full/15 --margin 32 --gpu_memory_fraction 0.25 --embeddings_name ~/facenet/export_embeddings/15/embeddings.npy --labels_name ~/facenet/export_embeddings/15/labels.npy --labels_strings_name ~/facenet/export_embeddings/15/label_strings.npy
+
+---------------------------------------------------------------
