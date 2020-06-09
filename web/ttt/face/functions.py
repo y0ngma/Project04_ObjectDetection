@@ -102,6 +102,7 @@ def create_tables():
 
 
 
+# 자동인덱스 리셋할시 리셋(ALTER)할 테이블명 알아내는법
 def sequences():
     sql = """SELECT sequence_schema, sequence_name
 	            FROM information_schema.sequences;"""

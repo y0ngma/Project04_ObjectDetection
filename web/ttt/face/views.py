@@ -12,10 +12,12 @@ import numpy as np
 import psycopg2
 import estimate, UI
 from functions import *
+from datetime import datetime
 
-# conn_string = "host='192.168.0.59' dbname ='postgres' user='user' password='password'"
-# conn = psycopg2.connect(conn_string)
-# cur = conn.cursor()
+
+conn_string = "host='192.168.0.59' dbname ='testdb' user='user' password='password'"
+conn = psycopg2.connect(conn_string)
+cur = conn.cursor()
 face_lists = list()
 
 # 카메라 인식 Class - fps 부분은 삭제
@@ -163,6 +165,15 @@ def join1():
 
 def test():
     cap = cv2.VideoCapture(0) # 웹 카메라로부터 입력받기
+    # customer_age, customer_gender = estimate.age_gender()
+# 회원입력
+    # insert_customer(customer_age, customer_gender)
+    name = "abc"
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    sql = """INSERT INTO test2(name, time) VALUES(%s, %s);"""
+    cur.execute(sql, (name, timestamp))
+    conn.commit()
+    \
     while True:
         _, frame = cap.read() # 이미지 읽어 들이기
         frame = cv2.resize(frame, (480,360)) # 이미지를 축소
@@ -208,11 +219,11 @@ def test():
         if cv2.waitKey(1) & 0xFF == ord('a'):
             item_name, item_producer, item_group, item_price = UI.purchase()
             add_item(item_name, item_producer, item_group, item_price, customer_id)
-    ## 이미지 캡쳐하고 (로컬저장후) DB적재
-        # 이미지 캡쳐하는것 추가필요
-        if cv2.waitKey(1) & 0xFF == ord('d'):
-            write_blob(1, input_path+'hong.jpeg', 'jpeg')
-            write_blob(2, input_path+'jennie_makeup.jpg', 'jpg')
+    # ## 이미지 캡쳐하고 (로컬저장후) DB적재
+    #     # 이미지 캡쳐하는것 추가필요
+    #     if cv2.waitKey(1) & 0xFF == ord('d'):
+    #         write_blob(1, input_path+'hong.jpeg', 'jpeg')
+    #         write_blob(2, input_path+'jennie_makeup.jpg', 'jpg')
 
     ## DB예측된 값을 사용자가 수정
         # # 웹상에서 팝업창 띄우거나 예측된값 옆에 수정버튼 구비
