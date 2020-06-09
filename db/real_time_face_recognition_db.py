@@ -150,17 +150,17 @@ if __name__ == '__main__':
 
 # 열결된 db 정보
     connect()
-# DB
-    create_tables()
+# # DB
+#     create_tables()
 
-## 회원입력
-    customer_age, customer_gender = estimate.age_gender()
-    for i in range(10):
-        insert_customer(customer_age+int(i), customer_gender)
-## customer_id와 item_id를 연결
-    item_name, item_producer, item_group, item_price = UI.purchase()
-    customer_list = (1, 2)
-    add_item(item_name, item_producer, item_group, item_price, customer_list)
+# ## 회원입력
+#     customer_age, customer_gender = estimate.age_gender()
+#     for i in range(10):
+#         insert_customer(customer_age+int(i), customer_gender)
+# ## customer_id와 item_id를 연결
+#     item_name, item_producer, item_group, item_price = UI.purchase()
+#     customer_list = (1, 2)
+#     add_item(item_name, item_producer, item_group, item_price, customer_list)
 ## DB예측된 값을 사용자가 수정
 # 웹상에서 팝업창 띄우거나 예측된값 옆에 수정버튼 구비
     # customer_age, customer_gender, customer_id = UI.register()

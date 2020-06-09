@@ -106,6 +106,28 @@ def create_tables():
 
 
 
+def sequences():
+    sql = """SELECT sequence_schema, sequence_name
+	            FROM information_schema.sequences;"""
+    conn = None
+    customer_id = None
+    try:
+        params = config()
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+        cur.execute(sql)
+        tmp = cur.fetchall()
+        # conn.commit()
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            print('='*25, '시퀸스목록', '='*25, '\n', tmp, '\n', '='*60)
+
+
+
 def insert_customer(customer_age, customer_gender):
     """ insert a new customer into the customers table """
     sql = """INSERT INTO customers(customer_age, customer_gender)

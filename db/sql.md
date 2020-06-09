@@ -139,6 +139,44 @@
     ```
 
 ## Advanced Commands
+- CREATE TABLE
+    ```sql
+    CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    customer_name VARCHAR(255) NULL,
+    customer_age VARCHAR(255) NOT NULL,
+    customer_gender VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(255) NULL
+    );
+    CREATE TABLE items (
+    item_id SERIAL PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL,
+    item_producer VARCHAR(255) NULL,
+    item_group VARCHAR(255) NULL,
+    item_price INTEGER NOT NULL
+    );
+    CREATE TABLE customer_pics (
+    customer_id INTEGER PRIMARY KEY,
+    file_extension VARCHAR(5) NOT NULL,
+    pic_data BYTEA NOT NULL,
+    FOREIGN KEY (customer_id)
+        REFERENCES customers (customer_id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+    );
+    CREATE TABLE customer_items (
+    customer_id INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    PRIMARY KEY (customer_id , item_id),
+    FOREIGN KEY (customer_id)
+        REFERENCES customers (customer_id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (item_id)
+        REFERENCES items (item_id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    purchased_at TIMESTAMP DEFAULT DATE_TRUNC('second', CURRENT_TIMESTAMP),
+    purchased_at2 TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
+    ```
+
 - distinct / group by
     ```sql
     SELECT * 
@@ -185,6 +223,47 @@
         where first_name = 'Bruce')
         and first_name <> 'Bruce' 
         -- <>는 != 이랑 같음 
+    
+    ------------------------------------------------
+    -- 고객 나이별 그룹핑 
+    SELECT customer.age_dec, customer.gender FROM customer 
+    GROUP BY customer.age_dec, customer.gender
+    ORDER BY (customer.age_dec, customer.gender) ASC;
+
+    -- 해당 성별나이와 동일한  customer 조회해서 
+    SELECT * FROM customer WHERE (customer.age_dec, customer.gender) IN (
+        SELECT customer.age_dec, customer.gender
+        FROM customer
+        WHERE customer.name_eng = 'Kimminseop');
+
+    -- 해당 sales 검색 및 집계 
+    SELECT * FROM sales WHERE 이름 IN (
+        SELECT customer.name_kor FROM customer WHERE (customer.age_dec, customer.gender) IN (
+            SELECT customer.age_dec, customer.gender
+            FROM customer
+            WHERE customer.name_eng = 'Kimminseop')
+    );
+
+    -- 입력 고객 나이성별과 동일한 고객들의 선호메뉴 추천 
+    SELECT 메뉴, COUNT(메뉴) FROM sales 
+    WHERE 이름 IN (
+        SELECT customer.name_kor FROM customer 
+        WHERE (customer.age_dec, customer.gender) IN (
+            SELECT customer.age_dec, customer.gender
+            FROM customer
+            WHERE customer.name_eng = 'Kimminseop') 
+    )
+    GROUP BY 메뉴 ORDER BY COUNT DESC LIMIT 3 ;
+
+    
+    -----------------------------------------------
+    -- VIP 연령과 나이 가져오기
+    SELECT * FROM customer WHERE customer.name_eng = 'Kimminseop';
+
+    -- VIP고객일때 이름으로 제품이력 조회 및 최다구매품목 추천
+    SELECT  메뉴, COUNT(*) FROM (
+        SELECT * FROM sales WHERE  이름 = '정용희') AS history
+    GROUP BY 메뉴 ORDER BY COUNT DESC LIMIT 1;
     ```
 
 - COUNT와 GROUP BY
