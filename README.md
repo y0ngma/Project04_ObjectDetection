@@ -1,22 +1,35 @@
-# Project04_ObjectDetection
+## Project title
 
-## FaceNet
-- MTCNN
-- ResNet
-    - Residual block에 Batch Normalization(BN) 사용
-    - Conv-BN-ReLU 순으로 배치(순서에따라 성능 차이 유의)
-- VGG_Face
-    - pre-train model
-## 환경구축
-- Docker django
-    - 가상화 머신 보다 좀더 경량화된 방식
-    - 게스트 OS를 설치하지 않아도 됨
-    - 서버운영에 필요한 프로그램과 라이브러리만 격리해서 설치할 수 있고, os 자원은 호스트와 공유. 
-    - 이미지 용량이 적음
-    - 가상화 레이어가 없기 때문에 파일시스템, 네트워크 속도도 가상머신에 비해 월등히 빠름. 호스트와 거의 동일
-    - 가상머신과 달리 이미지 생성과 배포에 특화된 기능제공(버전관리 포함)
-    - 제공되는 다양한 API 으로 원하는 만큼 자동화가능. 개발과 서버운영에 융용.
+## Motivation
 
-- CUDA
-- PostgreSQL
-- 
+## Build status
+
+## Code style
+ 
+## Screenshots
+
+## Tech/framework used
+
+## Features
+What makes your project stand out?
+
+## Code Example
+Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+
+## Installation
+Provide step by step series of examples and explanations about how to get a development env running.
+
+## API Reference
+
+Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+
+## Tests
+Describe and show how to run the tests with code examples.
+
+## How to use?
+
+## Contribute
+
+Let people know how they can contribute into your project. A [contributing guideline](https://github.com/zulip/zulip-electron/blob/master/CONTRIBUTING.md) will be a big plus.
+
+## Credits
